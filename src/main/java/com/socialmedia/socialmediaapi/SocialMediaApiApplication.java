@@ -1,7 +1,7 @@
 package com.socialmedia.socialmediaapi;
 
 import com.socialmedia.socialmediaapi.models.auth.RegisterRequest;
-import com.socialmedia.socialmediaapi.service.AuthenticationService;
+import com.socialmedia.socialmediaapi.service.impl.AuthenticationService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.socialmedia.socialmediaapi.service;
+package com.socialmedia.socialmediaapi.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmedia.socialmediaapi.config.JwtService;

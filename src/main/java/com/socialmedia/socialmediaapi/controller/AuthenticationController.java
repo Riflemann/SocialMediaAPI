@@ -2,7 +2,7 @@ package com.socialmedia.socialmediaapi.controller;
 
 import com.socialmedia.socialmediaapi.models.auth.AuthenticationRequest;
 import com.socialmedia.socialmediaapi.models.auth.AuthenticationResponse;
-import com.socialmedia.socialmediaapi.service.AuthenticationService;
+import com.socialmedia.socialmediaapi.service.impl.AuthenticationService;
 import com.socialmedia.socialmediaapi.models.auth.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
