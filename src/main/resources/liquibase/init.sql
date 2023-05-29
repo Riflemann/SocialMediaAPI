@@ -2,10 +2,43 @@
 
 --changeset mr.rifleman:1
 
-create table notification_tasks
+create table users
 (
-    id      serial primary key,
-    message text   not null,
-    chat_id bigint not null,
-    notification_ldt timestamp not null
+    id        serial primary key,
+    full_name text not null,
+    login     text not null,
+    password  text not null,
+    city      text,
+    role      varchar(255)
 );
+
+create table token
+(
+    id         serial primary key,
+    token      text         not null,
+    token_type varchar(255) not null,
+    expired    boolean,
+    revoked    boolean,
+    user_id    int references users (id)
+);
+
+create table messages
+(
+    id       serial primary key,
+    user_one int       not null references users (id),
+    user_two int       not null references users (id),
+    msg_ldt  timestamp not null,
+    txt      text      not null,
+    is_read  boolean   not null
+);
+
+create table posts
+(
+    id         serial primary key,
+    user_owner int       not null references users (id),
+    date_time  timestamp not null,
+    header     text,
+    txt        text      not null,
+    pic        text
+);
+
