@@ -48,6 +48,9 @@ public class User implements UserDetails {
             orphanRemoval = true)
     private List<Posts> postsList;
 
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<User> friends;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
