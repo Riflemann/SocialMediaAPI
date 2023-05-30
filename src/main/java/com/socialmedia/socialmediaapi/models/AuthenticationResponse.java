@@ -1,4 +1,4 @@
-package com.socialmedia.socialmediaapi.dto;
+package com.socialmedia.socialmediaapi.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

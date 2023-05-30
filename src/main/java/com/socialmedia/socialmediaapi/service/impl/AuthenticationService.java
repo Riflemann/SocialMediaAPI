@@ -5,7 +5,7 @@ import com.socialmedia.socialmediaapi.config.JwtService;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.dto.AuthenticationRequest;
-import com.socialmedia.socialmediaapi.dto.AuthenticationResponse;
+import com.socialmedia.socialmediaapi.models.AuthenticationResponse;
 import com.socialmedia.socialmediaapi.dto.RegisterRequest;
 import com.socialmedia.socialmediaapi.security.token.Token;
 import com.socialmedia.socialmediaapi.security.token.TokenRepository;
