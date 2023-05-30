@@ -1,5 +1,6 @@
 package com.socialmedia.socialmediaapi.service;
 
+import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
 import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.dto.UserPage;
@@ -11,11 +12,11 @@ public interface UserService {
 
     List<User> getAll();
 
-    Optional<User> getUserById(int iD);
+    User getUserById(int id) throws UserNotFoundException;
 
-    UserPage getUserPage(int iD);
+    UserPage getUserPage(int id) throws UserNotFoundException;
 
-    boolean sendRequest(int userIdFrom, int userIdTo);
+    boolean sendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException;
 
     List<Friends> getFriendsListById(int userId);
 

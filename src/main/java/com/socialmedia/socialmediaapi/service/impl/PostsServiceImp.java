@@ -1,9 +1,11 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
+import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
 import com.socialmedia.socialmediaapi.service.PostsService;
+import com.socialmedia.socialmediaapi.utils.StringUtil;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -52,7 +54,8 @@ public class PostsServiceImp implements PostsService {
     }
 
     @Override
-    public String getPic(String id) throws AttributeNotFoundException {
+    public String getPic(String id) throws AttributeNotFoundException, IncorrectIdException {
+        StringUtil.ValidationId(id);
         Optional<Posts> postsOptional = postsRepo.findById(Integer.parseInt(id));
         if (postsOptional.isPresent()) {
             return postsOptional.get().getPic();
@@ -63,22 +66,13 @@ public class PostsServiceImp implements PostsService {
     }
 
     @Override
-    public String saveImage(MultipartFile pic) {
-
+    public String saveImage(MultipartFile pic) throws IOException {
         File storageFile = new File(filePath + "/" + pic.getName());
         Path path = Path.of(filePath, pic.getName());
-
         try (FileOutputStream fos = new FileOutputStream(storageFile)) {
-
             Files.createFile(path);
             IOUtils.copy(pic.getInputStream(), fos);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
-
         return path.toString();
     }
-
 }

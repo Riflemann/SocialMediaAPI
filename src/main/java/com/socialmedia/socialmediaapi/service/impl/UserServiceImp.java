@@ -1,6 +1,7 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.dto.UserPage;
+import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
 import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.FriendsRepository;
@@ -30,12 +31,17 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(int id) {
-        return userRepo.findById(id);
+    public User getUserById(int id) throws UserNotFoundException {
+        Optional<User> user = userRepo.findById(id);
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
+        }
     }
 
     @Override
-    public UserPage getUserPage(int id) {
+    public UserPage getUserPage(int id) throws UserNotFoundException {
         Optional<User> user = userRepo.findById(id);
         if (user.isPresent()) {
             return new UserPage(
@@ -44,13 +50,12 @@ public class UserServiceImp implements UserService {
                     user.get().getPostsList(),
                     user.get().getFriendsList());
         } else {
-//            todo реализовать свое исключение
-            throw new RuntimeException();
+            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
         }
     }
 
     @Override
-    public boolean sendRequest(int userIdFrom, int userIdTo) {
+    public boolean sendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException {
         Optional<User> userFrom = userRepo.findById(userIdFrom);
         Optional<User> userTo = userRepo.findById(userIdTo);
         if (userFrom.isPresent() && userTo.isPresent()) {
@@ -61,8 +66,7 @@ public class UserServiceImp implements UserService {
                     .build();
             friendsRepo.save(friends);
         } else {
-//            todo реализовать свое исключение
-            throw new RuntimeException();
+            throw new UserNotFoundException("Пользователь с ID " + userIdFrom + " или " + userIdTo + " не найден");
         }
         return true;
     }
