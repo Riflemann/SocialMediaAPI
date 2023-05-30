@@ -1,4 +1,4 @@
-package com.socialmedia.socialmediaapi.models.auth;
+package com.socialmedia.socialmediaapi.dto;
 
 import com.socialmedia.socialmediaapi.models.Role;
 import lombok.AllArgsConstructor;

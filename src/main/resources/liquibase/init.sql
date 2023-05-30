@@ -42,3 +42,11 @@ create table posts
     pic        text
 );
 
+create table friends
+(
+    id        serial primary key,
+    user_from int references users (id),
+    user_to     int references users (id),
+    status  int not null
+);
+

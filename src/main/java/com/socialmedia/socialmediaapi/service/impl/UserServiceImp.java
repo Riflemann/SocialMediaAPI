@@ -1,9 +1,10 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
-import com.socialmedia.socialmediaapi.models.UserPage;
+import com.socialmedia.socialmediaapi.dto.UserPage;
+import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.User;
+import com.socialmedia.socialmediaapi.repository.FriendsRepository;
 import com.socialmedia.socialmediaapi.repository.UserRepository;
-import com.socialmedia.socialmediaapi.service.UserPageService;
 import com.socialmedia.socialmediaapi.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,12 @@ public class UserServiceImp implements UserService {
 
     private final UserRepository userRepo;
 
-    private final UserPageService userPageService;
+    private final FriendsRepository friendsRepo;
 
-    public UserServiceImp(UserRepository userRepo, UserPageService userPageService) {
+
+    public UserServiceImp(UserRepository userRepo, FriendsRepository friendsRepo) {
         this.userRepo = userRepo;
-        this.userPageService = userPageService;
+        this.friendsRepo = friendsRepo;
     }
 
     @Override
@@ -28,15 +30,57 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(int iD) {
-        return userRepo.findById(iD);
+    public Optional<User> getUserById(int id) {
+        return userRepo.findById(id);
     }
 
     @Override
-    public UserPage getUserPage(int iD) {
-        Optional<User> user = userRepo.findById(iD);
+    public UserPage getUserPage(int id) {
+        Optional<User> user = userRepo.findById(id);
+        if (user.isPresent()) {
+            return new UserPage(
+                    user.get().getFullName(),
+                    user.get().getCity(),
+                    user.get().getPostsList(),
+                    user.get().getFriendsList());
+        } else {
+//            todo реализовать свое исключение
+            throw new RuntimeException();
+        }
+    }
 
-        return userPageService.getPage(user);
+    @Override
+    public boolean sendRequest(int userIdFrom, int userIdTo) {
+        Optional<User> userFrom = userRepo.findById(userIdFrom);
+        Optional<User> userTo = userRepo.findById(userIdTo);
+        if (userFrom.isPresent() && userTo.isPresent()) {
+            Friends friends = Friends.builder()
+                    .userTo(userFrom.get())
+                    .userFrom(userTo.get())
+                    .status(0)
+                    .build();
+            friendsRepo.save(friends);
+        } else {
+//            todo реализовать свое исключение
+            throw new RuntimeException();
+        }
+        return true;
+    }
+
+    @Override
+    public List<Friends> getFriendsListById(int userId) {
+        return friendsRepo.getAllFriends(userId);
+    }
+
+    @Override
+    public List<Friends> getSubscribesListById(int userId) {
+        return friendsRepo.getAllSubscribes(userId);
+    }
+
+    @Override
+    public boolean acceptFriendRequest(int userIdFrom, int userIdTo) {
+        friendsRepo.acceptFriendRequest(userIdFrom, userIdTo);
+        return true;
     }
 
 }

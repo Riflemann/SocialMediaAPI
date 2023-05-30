@@ -1,4 +1,4 @@
-package com.socialmedia.socialmediaapi.models.auth;
+package com.socialmedia.socialmediaapi.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

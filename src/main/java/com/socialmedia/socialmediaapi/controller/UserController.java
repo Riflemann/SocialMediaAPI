@@ -1,7 +1,7 @@
 package com.socialmedia.socialmediaapi.controller;
 
 import com.socialmedia.socialmediaapi.models.Posts;
-import com.socialmedia.socialmediaapi.models.UserPage;
+import com.socialmedia.socialmediaapi.dto.UserPage;
 import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.service.UserService;
 import org.springframework.http.HttpStatus;

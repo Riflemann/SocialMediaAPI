@@ -48,8 +48,10 @@ public class User implements UserDetails {
             orphanRemoval = true)
     private List<Posts> postsList;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<User> friends;
+    @OneToMany(mappedBy = "userTo",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Friends> friendsList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,9 +1,9 @@
 package com.socialmedia.socialmediaapi.controller;
 
-import com.socialmedia.socialmediaapi.models.auth.AuthenticationRequest;
-import com.socialmedia.socialmediaapi.models.auth.AuthenticationResponse;
+import com.socialmedia.socialmediaapi.dto.AuthenticationRequest;
+import com.socialmedia.socialmediaapi.dto.AuthenticationResponse;
 import com.socialmedia.socialmediaapi.service.impl.AuthenticationService;
-import com.socialmedia.socialmediaapi.models.auth.RegisterRequest;
+import com.socialmedia.socialmediaapi.dto.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
