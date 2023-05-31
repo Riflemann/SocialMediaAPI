@@ -3,9 +3,14 @@ package com.socialmedia.socialmediaapi.controller;
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
 import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
 import com.socialmedia.socialmediaapi.models.Posts;
+import com.socialmedia.socialmediaapi.repository.PostsRepository;
 import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.service.UserService;
 import com.socialmedia.socialmediaapi.utils.StringUtil;
+import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +35,11 @@ public class PostsController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Posts>> getFriendsPosts(@PathVariable String id){
+    public ResponseEntity<Page<Posts>> getFriendsPosts(@RequestParam(required = false, value = "offset", defaultValue = "0") @Min(0) Integer offset,
+                                                       @RequestParam(required = false, value = "limit", defaultValue = "20") Integer limit,
+                                                       @PathVariable String id){
         try {
-            return ResponseEntity.ok(postsService.getAllFromFriends(id));
+            return ResponseEntity.ok(postsService.getAllFromFriends(id, offset, limit));
         } catch (IncorrectIdException | UserNotFoundException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();

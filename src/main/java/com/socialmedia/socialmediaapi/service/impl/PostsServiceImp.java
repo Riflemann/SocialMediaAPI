@@ -2,7 +2,6 @@ package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
 import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
-import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
@@ -11,6 +10,9 @@ import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.utils.StringUtil;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +22,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,19 +51,24 @@ public class PostsServiceImp implements PostsService {
     }
 
     @Override
-    public List<Posts> getAllFromFriends(String id) throws IncorrectIdException, UserNotFoundException {
-        List<Posts> postsList = new ArrayList<>();
-        Optional<User> user = userRepo.findById(StringUtil.ValidationId(id));
-        if (user.isPresent()) {
-            List<Friends> friendsList = user.get().getFriendsList();
-            for (Friends friend : friendsList) {
-                int userToId = friend.getUserTo().getId();
-                postsList.addAll(postsRepo.getAllByUserOwnerId(userToId));
-            }
-            return postsList;
-        } else {
-            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
-        }
+    public Page<Posts> getAllFromFriends(String id, int offset, int limit) throws IncorrectIdException {
+        int intId = StringUtil.ValidationId(id);
+        Page<Posts> postsPage = postsRepo.findAll(PageRequest.of(offset, limit, Sort.by("creatingTime")));
+        postsPage.stream().filter(posts -> posts.getId() != intId).close();
+        return postsPage;
+
+//        List<Posts> postsList = new ArrayList<>();
+//        Optional<User> user = userRepo.findById(intId);
+//        if (user.isPresent()) {
+//            List<Friends> friendsList = user.get().getFriendsList();
+//            for (Friends friend : friendsList) {
+//                int userToId = friend.getUserTo().getId();
+//                postsList.addAll(postsRepo.getAllByUserOwnerId(userToId));
+//            }
+//            return postsList;
+//        } else {
+//            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
+//        }
     }
 
     @Override

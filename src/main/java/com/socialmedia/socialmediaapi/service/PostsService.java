@@ -4,6 +4,7 @@ import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
 import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.management.AttributeNotFoundException;
@@ -16,7 +17,7 @@ public interface PostsService {
 
     List<Posts> getAllByUserId(String id) throws IncorrectIdException;
 
-    List<Posts> getAllFromFriends(String id) throws IncorrectIdException, UserNotFoundException;
+    Page<Posts> getAllFromFriends(String id, int offset, int limit) throws IncorrectIdException, UserNotFoundException;
 
     void savePost(Posts posts);
 

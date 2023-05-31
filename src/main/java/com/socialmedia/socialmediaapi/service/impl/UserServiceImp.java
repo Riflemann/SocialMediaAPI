@@ -104,7 +104,7 @@ public class UserServiceImp implements UserService {
 
     private Map<Integer, User> getUserMap(int userIdFrom, int userIdTo) throws UserNotFoundException {
         Map<Integer, User> userHashMap = new HashMap<>();
-        userRepo.getAllByIdIsLikeAndIdIsLike(userIdFrom, userIdTo).map(user -> userHashMap.put(user.getId(), user));
+        userRepo.getAllByIdIsLikeAndIdIsLike(userIdFrom, userIdTo).forEach(user -> userHashMap.put(user.getId(), user));
         if (userHashMap.containsKey(userIdFrom) && userHashMap.containsKey(userIdTo)) {
             return userHashMap;
 
