@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                         email = "kdanilov1911@gmail.com",
                         url = ""
                 ),
-                description = "OpenApi documentation for Spring Security",
+                description = "OpenApi documentation for SocialMedia API",
                 title = "OpenApi specification",
                 version = "1.0",
                 license = @License(
@@ -30,10 +30,6 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @Server(
                         description = "Local ENV",
                         url = "http://localhost:8080"
-                ),
-                @Server(
-                        description = "PROD ENV",
-                        url = ""
                 )
         },
         security = {

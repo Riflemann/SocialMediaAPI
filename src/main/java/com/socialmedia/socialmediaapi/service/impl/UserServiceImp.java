@@ -88,7 +88,7 @@ public class UserServiceImp implements UserService {
         Friends friends = Friends.builder()
                 .userFrom(userHashMap.get(userIdTo))
                 .userTo(userHashMap.get(userIdFrom))
-                .status(0)
+                .status(1)
                 .build();
         friendsRepo.save(friends);
 

@@ -17,7 +17,7 @@ public interface PostsService {
 
     List<Posts> getAllByUserId(String id) throws IncorrectIdException;
 
-    Page<Posts> getAllFromFriends(String id, int offset, int limit) throws IncorrectIdException, UserNotFoundException;
+    Page<Posts> getAllPostsFromFriends(String id, int offset, int limit) throws IncorrectIdException, UserNotFoundException;
 
     void savePost(Posts posts);
 

@@ -11,11 +11,11 @@ import java.util.List;
 public interface FriendsRepository extends JpaRepository<Friends, Integer> {
 
     @Transactional
-    @Query("select friends from Friends friends where friends.userFrom =:userId and friends.userTo = :userId and friends.status = 1")
+    @Query("select friends from Friends friends where friends.userFrom =:userId and friends.status = 1")
     List<Friends> getAllFriends(int userId);
 
     @Transactional
-    @Query("select friends from Friends friends where friends.userFrom =:userId")
+    @Query("select friends from Friends friends where friends.userFrom =:userId and friends.status = 0")
     List<Friends> getAllSubscribes(int userId);
 
     @Transactional

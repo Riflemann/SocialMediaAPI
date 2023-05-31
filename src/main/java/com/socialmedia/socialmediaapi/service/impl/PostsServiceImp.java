@@ -1,9 +1,10 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
-import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
+import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
+import com.socialmedia.socialmediaapi.repository.FriendsRepository;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
 import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.service.PostsService;
@@ -20,10 +21,13 @@ import javax.management.AttributeNotFoundException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostsServiceImp implements PostsService {
@@ -33,12 +37,12 @@ public class PostsServiceImp implements PostsService {
 
     private final PostsRepository postsRepo;
 
-    private final UserRepository userRepo;
+    private final FriendsRepository friendsRepo;
 
 
-    public PostsServiceImp(PostsRepository postsRepo, UserRepository userRepo) {
+    public PostsServiceImp(PostsRepository postsRepo, FriendsRepository friendsRepo) {
         this.postsRepo = postsRepo;
-        this.userRepo = userRepo;
+        this.friendsRepo = friendsRepo;
     }
 
     @Override
@@ -51,24 +55,30 @@ public class PostsServiceImp implements PostsService {
     }
 
     @Override
-    public Page<Posts> getAllFromFriends(String id, int offset, int limit) throws IncorrectIdException {
-        int intId = StringUtil.ValidationId(id);
-        Page<Posts> postsPage = postsRepo.findAll(PageRequest.of(offset, limit, Sort.by("creatingTime")));
-        postsPage.stream().filter(posts -> posts.getId() != intId).close();
-        return postsPage;
+    public Page<Posts> getAllPostsFromFriends(String id, int offset, int limit) throws IncorrectIdException {
 
-//        List<Posts> postsList = new ArrayList<>();
-//        Optional<User> user = userRepo.findById(intId);
-//        if (user.isPresent()) {
-//            List<Friends> friendsList = user.get().getFriendsList();
-//            for (Friends friend : friendsList) {
-//                int userToId = friend.getUserTo().getId();
-//                postsList.addAll(postsRepo.getAllByUserOwnerId(userToId));
-//            }
-//            return postsList;
-//        } else {
-//            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
-//        }
+        int intId = StringUtil.ValidationId(id);
+
+        List<Friends> friendsArrayList = new ArrayList<>();
+        friendsArrayList.addAll(friendsRepo.getAllFriends(intId));
+        friendsArrayList.addAll(friendsRepo.getAllSubscribes(intId));
+
+        List<Integer> friendsIdArrayList;
+        friendsIdArrayList = friendsArrayList.stream()
+                                                    .map(friends -> friends.getUserTo().getId())
+                                                    .collect(Collectors.toCollection(ArrayList::new));
+
+        List<Integer> finalFriendsIdArrayList = friendsIdArrayList;
+
+        Page<Posts> postsPage = postsRepo.findAll(
+                                                PageRequest.of(
+                                                            offset,
+                                                            limit,
+                                                            Sort.by("creatingTime")));
+        postsPage.stream()
+                        .filter(posts -> finalFriendsIdArrayList.contains(posts.getUserOwner().getId()))
+                        .close();
+        return postsPage;
     }
 
     @Override

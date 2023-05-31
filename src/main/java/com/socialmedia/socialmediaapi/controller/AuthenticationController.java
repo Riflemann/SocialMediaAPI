@@ -4,6 +4,7 @@ import com.socialmedia.socialmediaapi.dto.AuthenticationRequest;
 import com.socialmedia.socialmediaapi.models.AuthenticationResponse;
 import com.socialmedia.socialmediaapi.service.impl.AuthenticationService;
 import com.socialmedia.socialmediaapi.dto.RegisterRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name="Контроллер для регистрации, аутентификации и обновлении JWT", description="Контроллер для регистрации, аутентификации и обновлении JWT")
 public class AuthenticationController {
 
   private final AuthenticationService service;
