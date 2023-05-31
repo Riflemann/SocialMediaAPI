@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,4 +18,8 @@ public class UserPage {
     private String city;
     private List<Posts> posts;
     private List<Friends> friends;
+
+    public <E> UserPage(int userId, String john_doe, String s, String s1, ArrayList<E> es) {
+
+    }
 }

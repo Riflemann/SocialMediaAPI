@@ -9,7 +9,9 @@ import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.service.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -56,18 +58,14 @@ public class UserServiceImp implements UserService {
 
     @Override
     public boolean sendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException {
-        Optional<User> userFrom = userRepo.findById(userIdFrom);
-        Optional<User> userTo = userRepo.findById(userIdTo);
-        if (userFrom.isPresent() && userTo.isPresent()) {
-            Friends friends = Friends.builder()
-                    .userTo(userFrom.get())
-                    .userFrom(userTo.get())
-                    .status(0)
-                    .build();
-            friendsRepo.save(friends);
-        } else {
-            throw new UserNotFoundException("Пользователь с ID " + userIdFrom + " или " + userIdTo + " не найден");
-        }
+        Map<Integer, User> userHashMap = getUserMap(userIdFrom, userIdTo);
+
+        Friends friends = Friends.builder()
+                .userFrom(userHashMap.get(userIdFrom))
+                .userTo(userHashMap.get(userIdTo))
+                .status(0)
+                .build();
+        friendsRepo.save(friends);
         return true;
     }
 
@@ -82,9 +80,37 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public boolean acceptFriendRequest(int userIdFrom, int userIdTo) {
+    public boolean acceptFriendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException {
         friendsRepo.acceptFriendRequest(userIdFrom, userIdTo);
+
+        Map<Integer, User> userHashMap = getUserMap(userIdFrom, userIdTo);
+
+        Friends friends = Friends.builder()
+                .userFrom(userHashMap.get(userIdTo))
+                .userTo(userHashMap.get(userIdFrom))
+                .status(0)
+                .build();
+        friendsRepo.save(friends);
+
         return true;
+    }
+
+    @Override
+    public boolean deleteFromFriends(int userIdFrom, int userIdTo){
+        friendsRepo.deleteFromFriends(userIdFrom, userIdTo);
+        friendsRepo.changeStatusFromFriendToSubscribe(userIdTo, userIdFrom);
+        return true;
+    }
+
+    private Map<Integer, User> getUserMap(int userIdFrom, int userIdTo) throws UserNotFoundException {
+        Map<Integer, User> userHashMap = new HashMap<>();
+        userRepo.getAllByIdIsLikeAndIdIsLike(userIdFrom, userIdTo).map(user -> userHashMap.put(user.getId(), user));
+        if (userHashMap.containsKey(userIdFrom) && userHashMap.containsKey(userIdTo)) {
+            return userHashMap;
+
+        } else {
+            throw new UserNotFoundException("Пользователь с ID " + userIdFrom + " или " + userIdTo + " не найден");
+        }
     }
 
 }

@@ -1,39 +1,29 @@
 package com.socialmedia.socialmediaapi.controller;
 
+import com.socialmedia.socialmediaapi.dto.UserPage;
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
 import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
-import com.socialmedia.socialmediaapi.models.Posts;
-import com.socialmedia.socialmediaapi.dto.UserPage;
-import com.socialmedia.socialmediaapi.models.User;
+import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.service.UserService;
 import com.socialmedia.socialmediaapi.utils.StringUtil;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.management.AttributeNotFoundException;
-import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/user/{id}")
 public class UserController {
 
     private final UserService userService;
 
-    private final PostsService postsService;
-
     public UserController(UserService userService, PostsService postsService) {
         this.userService = userService;
-        this.postsService = postsService;
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<UserPage> getPage(@PathVariable int id) {
+    @GetMapping()
+    public ResponseEntity<UserPage> getUserPage(@PathVariable int id) {
         try {
             return ResponseEntity.ok(userService.getUserPage(id));
         } catch (UserNotFoundException e) {
@@ -42,52 +32,64 @@ public class UserController {
         }
     }
 
-    @PostMapping(value = "{id}/post/add", consumes = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Posts> addPost(@RequestParam String header,
-                                         @RequestParam String text,
-                                         @RequestParam("imageFile") MultipartFile pic,
-                                         @PathVariable String id) throws IOException {
-        String path = postsService.saveImage(pic);
 
-        Posts post = null;
+    @GetMapping(value = "friends")
+    public ResponseEntity<List<Friends>> getFriendsList(@PathVariable String id) {
         try {
-            StringUtil.ValidationId(id);
+            return ResponseEntity.ok(userService.getFriendsListById(StringUtil.ValidationId(id)));
+        } catch (IncorrectIdException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
-            post = Posts.builder()
-                    .header(header)
-                    .text(text)
-                    .pic(path)
-                    .userOwner(userService.getUserById(Integer.parseInt(id)))
-                    .creatingTime(LocalDateTime.now())
-                    .build();
+    @GetMapping(value = "subscribes")
+    public ResponseEntity<List<Friends>> getSubscribesList(@PathVariable String id) {
+        try {
+            return ResponseEntity.ok(userService.getSubscribesListById(StringUtil.ValidationId(id)));
+        } catch (IncorrectIdException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping(value = "friends{user_id_to}")
+    public ResponseEntity<String> sendFriendRequest(@PathVariable String id,
+                                                    @PathVariable String user_id_to) {
+        try {
+            userService.sendRequest(StringUtil.ValidationId(id), StringUtil.ValidationId(user_id_to));
+            return ResponseEntity.ok("Запрос отправлен");
         } catch (UserNotFoundException | IncorrectIdException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
-
-        postsService.savePost(post);
-        return ResponseEntity.ok(post);
     }
 
-    @PutMapping(value = "{id}/post/edit{post_id}", consumes = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<String> editPost(@RequestParam(required = false) String header,
-                                           @RequestParam(required = false) String text,
-                                           @RequestParam(name = "imageFile", required = false) MultipartFile pic,
-                                           @PathVariable String post_id, @PathVariable String id) throws AttributeNotFoundException, IOException {
-        String pathToImage = "";
-
-        if (pic.isEmpty()) {
-            try {
-                pathToImage = postsService.getPic(post_id);
-            } catch (IncorrectIdException e) {
-                e.printStackTrace();
-                ResponseEntity.badRequest().body(e);
-            }
-        } else {
-            pathToImage = postsService.saveImage(pic);
+    @PutMapping(value = "friends{user_id_to}")
+    public ResponseEntity<String> acceptFriendRequest(@PathVariable String id,
+                                                      @PathVariable String user_id_to) {
+        try {
+            userService.acceptFriendRequest(StringUtil.ValidationId(id), StringUtil.ValidationId(user_id_to));
+            return ResponseEntity.ok("Запрос принят");
+        } catch (IncorrectIdException | UserNotFoundException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
         }
-
-        postsService.editPost(header, text, pathToImage, post_id);
-        return ResponseEntity.ok("Пост изменен");
     }
+
+    @DeleteMapping(value = "friends{user_id_to}")
+    public ResponseEntity<String> deleteFriend(@PathVariable String id,
+                                               @PathVariable String user_id_to) {
+        try {
+            userService.deleteFromFriends(StringUtil.ValidationId(id), StringUtil.ValidationId(user_id_to));
+            return ResponseEntity.ok("Друг удален");
+        } catch (IncorrectIdException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
+
+
+

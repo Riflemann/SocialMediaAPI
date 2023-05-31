@@ -7,11 +7,11 @@ import java.text.ParseException;
 
 public class StringUtil {
 
-    public static boolean ValidationId(String str) throws IncorrectIdException {
+    public static int ValidationId(String str) throws IncorrectIdException {
         try {
             NumberFormat.getInstance().parse(str);
             System.out.println(str + " is correct ID");
-            return true;
+            return Integer.parseInt(str);
         } catch (ParseException e) {
             throw new IncorrectIdException("Incorrect ID. " + str + " is not a number");
 

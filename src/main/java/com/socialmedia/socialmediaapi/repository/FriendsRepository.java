@@ -15,11 +15,20 @@ public interface FriendsRepository extends CrudRepository<Friends, Integer> {
     List<Friends> getAllFriends(int userId);
 
     @Transactional
-    @Query("select friends from Friends friends where friends.userFrom =:userId and friends.userTo = :userId and friends.status = 0")
+    @Query("select friends from Friends friends where friends.userFrom =:userId")
     List<Friends> getAllSubscribes(int userId);
 
     @Transactional
     @Modifying
-    @Query("update Friends e set e.status=1 where e.userTo = :userIdFrom and e.userTo = :userIdTo")
+    @Query("update Friends e set e.status=1 where e.userFrom = :userIdFrom and e.userTo = :userIdTo")
     void acceptFriendRequest(int userIdFrom, int userIdTo);
+
+    @Transactional
+    @Modifying
+    @Query("delete from Friends e where e.userFrom = :userIdFrom and e.userTo = :userIdTo")
+    void deleteFromFriends(int userIdFrom, int userIdTo);
+    @Transactional
+    @Modifying
+    @Query("update Friends e set e.status=0 where e.userFrom = :userIdFrom and e.userTo = :userIdTo")
+    void changeStatusFromFriendToSubscribe(int userIdFrom, int userIdTo);
 }

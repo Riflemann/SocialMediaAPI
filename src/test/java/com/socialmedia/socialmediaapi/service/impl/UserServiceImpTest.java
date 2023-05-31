@@ -191,7 +191,7 @@ public class UserServiceImpTest {
     }
 
     @Test
-    public void testAcceptFriendRequest() {
+    public void testAcceptFriendRequest() throws UserNotFoundException {
         userService.acceptFriendRequest(1, 2);
         verify(friendsRepo, times(1)).acceptFriendRequest(1, 2);
     }

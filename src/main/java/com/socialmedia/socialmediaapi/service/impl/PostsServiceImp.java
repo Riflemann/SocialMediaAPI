@@ -37,6 +37,11 @@ public class PostsServiceImp implements PostsService {
     public List<Posts> getAllByUser(Optional<User> userOptional) {
         return userOptional.map(postsRepo::getAllByUserOwner).orElse(null);
     }
+    @Override
+    public List<Posts> getAllByUserId(String id) throws IncorrectIdException {
+        return postsRepo.getAllByUserOwnerId(StringUtil.ValidationId(id));
+    }
+
 
     @Override
     public void savePost(Posts posts) {
@@ -55,8 +60,7 @@ public class PostsServiceImp implements PostsService {
 
     @Override
     public String getPic(String id) throws AttributeNotFoundException, IncorrectIdException {
-        StringUtil.ValidationId(id);
-        Optional<Posts> postsOptional = postsRepo.findById(Integer.parseInt(id));
+        Optional<Posts> postsOptional = postsRepo.findById(StringUtil.ValidationId(id));
         if (postsOptional.isPresent()) {
             return postsOptional.get().getPic();
         } else {
@@ -74,5 +78,11 @@ public class PostsServiceImp implements PostsService {
             IOUtils.copy(pic.getInputStream(), fos);
         }
         return path.toString();
+    }
+
+    @Override
+    public boolean deletePost(int postId){
+        postsRepo.deleteById(postId);
+        return true;
     }
 }

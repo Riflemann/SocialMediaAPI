@@ -1,7 +1,7 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.socialmedia.socialmediaapi.config.JwtService;
+import com.socialmedia.socialmediaapi.config.SecurityConfiguration;
 import com.socialmedia.socialmediaapi.dto.AuthenticationRequest;
 import com.socialmedia.socialmediaapi.dto.RegisterRequest;
 import com.socialmedia.socialmediaapi.models.AuthenticationResponse;
@@ -17,14 +17,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ContextConfiguration;
+
 import java.io.IOException;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class AuthenticationServiceTest {
 
     @Mock

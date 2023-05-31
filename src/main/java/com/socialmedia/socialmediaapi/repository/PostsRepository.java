@@ -15,6 +15,9 @@ public interface PostsRepository extends CrudRepository<Posts, Integer> {
     List<Posts> getAllByUserOwner(User userOwner);
 
     @Transactional
+    List<Posts> getAllByUserOwnerId(int id);
+
+    @Transactional
     @Modifying
     @Query("update Posts e set e.header = :header, e.text = :text, e.pic = :pic where e.id = :id")
     void editPost(String header, String text, String pic, String id);

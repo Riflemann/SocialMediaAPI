@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface PostsService {
     List<Posts> getAllByUser(Optional<User> userOptional);
 
+    List<Posts> getAllByUserId(String id) throws IncorrectIdException;
+
     void savePost(Posts posts);
 
     void editPost(String header, String text, String pic, String id);
@@ -20,4 +22,6 @@ public interface PostsService {
     String getPic(String id) throws AttributeNotFoundException, IncorrectIdException;
 
     String saveImage(MultipartFile pic) throws IOException;
+
+    boolean deletePost(int postId);
 }

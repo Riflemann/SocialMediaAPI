@@ -22,5 +22,7 @@ public interface UserService {
 
     List<Friends> getSubscribesListById(int userId);
 
-    boolean acceptFriendRequest(int userIdFrom, int userIdTo);
+    boolean acceptFriendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException;
+
+    boolean deleteFromFriends(int userIdFrom, int userIdTo);
 }
