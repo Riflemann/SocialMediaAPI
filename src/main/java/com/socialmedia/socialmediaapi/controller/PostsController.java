@@ -29,10 +29,20 @@ public class PostsController {
         this.postsService = postsService;
     }
 
-    @GetMapping(value = "{friend_id}")
-    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable String friend_id){
+    @GetMapping()
+    public ResponseEntity<List<Posts>> getFriendsPosts(@PathVariable String id){
         try {
-            return ResponseEntity.ok(postsService.getAllByUserId(friend_id));
+            return ResponseEntity.ok(postsService.getAllFromFriends(id));
+        } catch (IncorrectIdException | UserNotFoundException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping(value = "my_posts")
+    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable String id){
+        try {
+            return ResponseEntity.ok(postsService.getAllByUserId(id));
         } catch (IncorrectIdException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();

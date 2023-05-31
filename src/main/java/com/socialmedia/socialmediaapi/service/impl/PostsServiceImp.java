@@ -1,9 +1,12 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
+import com.socialmedia.socialmediaapi.exceptions.UserNotFoundException;
+import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
+import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.utils.StringUtil;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -17,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,9 +32,12 @@ public class PostsServiceImp implements PostsService {
 
     private final PostsRepository postsRepo;
 
+    private final UserRepository userRepo;
 
-    public PostsServiceImp(PostsRepository postsRepo) {
+
+    public PostsServiceImp(PostsRepository postsRepo, UserRepository userRepo) {
         this.postsRepo = postsRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
@@ -42,6 +49,21 @@ public class PostsServiceImp implements PostsService {
         return postsRepo.getAllByUserOwnerId(StringUtil.ValidationId(id));
     }
 
+    @Override
+    public List<Posts> getAllFromFriends(String id) throws IncorrectIdException, UserNotFoundException {
+        List<Posts> postsList = new ArrayList<>();
+        Optional<User> user = userRepo.findById(StringUtil.ValidationId(id));
+        if (user.isPresent()) {
+            List<Friends> friendsList = user.get().getFriendsList();
+            for (Friends friend : friendsList) {
+                int userToId = friend.getUserTo().getId();
+                postsList.addAll(postsRepo.getAllByUserOwnerId(userToId));
+            }
+            return postsList;
+        } else {
+            throw new UserNotFoundException("Пользователь с ID " + id + " не найден");
+        }
+    }
 
     @Override
     public void savePost(Posts posts) {
