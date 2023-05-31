@@ -21,6 +21,20 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+/**
+ * <p>Класс AuthenticationService является сервисом для аутентификации пользователей. Он содержит методы для регистрации, аутентификации и обновления токенов пользователей.
+ * <p>Поля:
+ * <p>- repository - объект репозитория для работы с пользователями.
+ * <p>- tokenRepository - объект репозитория для работы с токенами.
+ * <p>- passwordEncoder - объект для кодирования паролей.
+ * <p>- jwtService - объект для работы с JSON Web Token (JWT).
+ * <p>- authenticationManager - объект для аутентификации пользователей.
+ * <p>Методы:
+ * <p>- Метод AuthenticationResponse register(RegisterRequest request)- Метод регистрации нового пользователя. Принимает на вход объект RegisterRequest, содержащий информацию о новом пользователе (имя, логин, пароль и роль). Создает нового пользователя, сохраняет его в базе данных, генерирует JWT-токен и обновляющий токен, сохраняет их в базе данных и возвращает объект AuthenticationResponse, содержащий JWT-токен и обновляющий токен.
+ * <p>- Метод AuthenticationResponse authenticate(AuthenticationRequest request) - Метод аутентификации пользователя. Принимает на вход объект AuthenticationRequest, содержащий логин и пароль пользователя. Проверяет правильность логина и пароля, генерирует JWT-токен и обновляющий токен, сохраняет их в базе данных и возвращает объект AuthenticationResponse, содержащий JWT-токен и обновляющий токен.
+ * <p>- Метод saveUserToken(User user, String jwtToken) - Метод сохранения токена пользователя в базе данных. Принимает на вход объект User и JWT-токен. Создает новый объект Token, содержащий информацию о пользователе и токене, и сохраняет его в базе данных.
+ * <p>- Метод revokeAllUserTokens(User user) - Метод отзыва всех токенов пользователя. Принимает на вход объект User. Ищет все действующие токены пользователя, отзывает их и сохраняет изменения в базе данных.
+ * <p>- Метод refreshToken(HttpServletRequest request, HttpServletResponse response) - Метод обновления JWT-токена. Принимает на вход объекты HttpServletRequest и HttpServletResponse. Извлекает из запроса обновляющий токен, извлекает из него логин пользователя, проверяет правильность токена, генерирует новый JWT-токен, отзывает все действующие токены пользователя, сохраняет новый JWT-токен и возвращает объект AuthenticationResponse, содержащий новый JWT-токен и обновляющий токен.*/
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
