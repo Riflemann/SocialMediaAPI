@@ -25,8 +25,8 @@ create table token
 create table messages
 (
     id       serial primary key,
-    user_one int       not null references users (id),
-    user_two int       not null references users (id),
+    user_one int       not null,
+    user_two int       not null,
     msg_ldt  timestamp not null,
     txt      text      not null,
     is_read  boolean   not null
