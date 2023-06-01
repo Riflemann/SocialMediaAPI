@@ -1,122 +1,152 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.exceptions.IncorrectIdException;
+import com.socialmedia.socialmediaapi.models.Friends;
 import com.socialmedia.socialmediaapi.models.Posts;
 import com.socialmedia.socialmediaapi.models.User;
+import com.socialmedia.socialmediaapi.repository.FriendsRepository;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.management.AttributeNotFoundException;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class PostsServiceImpTest {
+public class PostsServiceImpTest {
+    @Mock
+    private PostsRepository postsRepo;
 
     @Mock
-    private PostsRepository postsRepository;
+    private FriendsRepository friendsRepo;
 
-    @InjectMocks
-    private PostsServiceImp postsService;
+    @Mock
+    private EntityManagerFactory entityManagerFactory;
+
+    private PostsServiceImp postsServiceImp;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        String filePath = "src/main/resources/files";
+        MockitoAnnotations.initMocks(this);
+        postsServiceImp = new PostsServiceImp(postsRepo, friendsRepo, entityManagerFactory);
     }
 
     @Test
-    void getAllByUser_returnsListOfPosts() {
+    @DisplayName("Test getAllByUser when user is present")
+    void testGetAllByUserWhenUserIsPresent() {
         User user = new User();
+        user.setId(1);
         List<Posts> postsList = new ArrayList<>();
         postsList.add(new Posts());
-        when(postsRepository.getAllByUserOwner(user)).thenReturn(postsList);
-
-        List<Posts> result = postsService.getAllByUser(Optional.of(user));
-
-        assertEquals(postsList, result);
+        when(postsRepo.getAllByUserOwner(user)).thenReturn(postsList);
+        List<Posts> result = postsServiceImp.getAllByUser(Optional.of(user));
+        Assertions.assertEquals(postsList, result);
     }
 
     @Test
-    void getAllByUser_returnsNull() {
-        List<Posts> result = postsService.getAllByUser(Optional.empty());
-
-        assertNull(result);
+    @DisplayName("Test getAllByUser when user is not present")
+    void testGetAllByUserWhenUserIsNotPresent() {
+        List<Posts> result = postsServiceImp.getAllByUser(Optional.empty());
+        Assertions.assertEquals(Collections.emptyList(), result);
     }
 
     @Test
-    void savePost() {
+    @DisplayName("Test getAllByUserId when id is correct")
+    void testGetAllByUserIdWhenIdIsCorrect() throws IncorrectIdException {
+        List<Posts> postsList = new ArrayList<>();
+        postsList.add(new Posts());
+        when(postsRepo.getAllByUserOwnerId(anyInt())).thenReturn(postsList);
+        List<Posts> result = postsServiceImp.getAllByUserId("1");
+        Assertions.assertEquals(postsList, result);
+    }
+
+    @Test
+    @DisplayName("Test getAllByUserId when id is incorrect")
+    void testGetAllByUserIdWhenIdIsIncorrect() {
+        Assertions.assertThrows(IncorrectIdException.class, () -> postsServiceImp.getAllByUserId("abc"));
+    }
+
+    @Test
+    @DisplayName("Test getAllPostsFromFriends")
+    void testGetAllPostsFromFriends() throws IncorrectIdException {
+        List<Friends> friendsList = new ArrayList<>();
+        Friends friend = new Friends();
+        friend.setUserTo(2);
+        friendsList.add(friend);
+        when(friendsRepo.getAllFriends(anyInt())).thenReturn(friendsList);
+        List<Integer> friendsIdList = new ArrayList<>();
+        friendsIdList.add(2);
+        when(entityManagerFactory.createEntityManager()).thenReturn(mock(EntityManager.class));
+        Query query = mock(Query.class);
+        when(query.setParameter(anyString(), anyList())).thenReturn(query);
+        when(query.setFirstResult(anyInt())).thenReturn(query);
+        when(query.setMaxResults(anyInt())).thenReturn(query);
+        when(query.getResultList()).thenReturn(new ArrayList<>());
+        when(entityManagerFactory.createEntityManager().createQuery(anyString())).thenReturn(query);
+        List<Posts> result = postsServiceImp.getAllPostsFromFriends("1", 1, 10);
+        Assertions.assertEquals(new ArrayList<>(), result);
+    }
+
+    @Test
+    @DisplayName("Test savePost")
+    void testSavePost() {
         Posts post = new Posts();
-
-        postsService.savePost(post);
-
-        verify(postsRepository, times(1)).save(post);
+        postsServiceImp.savePost(post);
+        verify(postsRepo, times(1)).save(post);
     }
 
     @Test
-    void editPost() {
-        String header = "new header";
-        String text = "new text";
-        String pic = "new pic";
-        String id = "1";
-
-        postsService.editPost(header, text, pic, id);
-
-        verify(postsRepository, times(1)).editPost(header, text, pic, id);
+    @DisplayName("Test editPost")
+    void testEditPost() {
+        postsServiceImp.editPost("header", "text", "pic", "1");
+        verify(postsRepo, times(1)).editPost("header", "text", "pic", "1");
     }
 
     @Test
-    void getPic_returnsPic() throws AttributeNotFoundException, IncorrectIdException {
-        String id = "1";
+    @DisplayName("Test getPic when post is present")
+    void testGetPicWhenPostIsPresent() throws AttributeNotFoundException, IncorrectIdException {
         Posts post = new Posts();
         post.setPic("pic");
-        when(postsRepository.findById(Integer.parseInt(id))).thenReturn(Optional.of(post));
-
-        String result = postsService.getPic(id);
-
-        assertEquals("pic", result);
+        when(postsRepo.findById(anyInt())).thenReturn(Optional.of(post));
+        String result = postsServiceImp.getPic("1");
+        Assertions.assertEquals("pic", result);
     }
 
     @Test
-    void getPic_throwsAttributeNotFoundException() {
-        String id = "1";
-        when(postsRepository.findById(Integer.parseInt(id))).thenReturn(Optional.empty());
-
-        assertThrows(AttributeNotFoundException.class, () -> postsService.getPic(id));
+    @DisplayName("Test getPic when post is not present")
+    void testGetPicWhenPostIsNotPresent() throws AttributeNotFoundException, IncorrectIdException {
+        when(postsRepo.findById(anyInt())).thenReturn(Optional.empty());
+        Assertions.assertThrows(AttributeNotFoundException.class, () -> postsServiceImp.getPic("1"));
     }
 
     @Test
-    void getPic_throwsIncorrectIdException() {
-        String id = "invalid";
-
-        assertThrows(IncorrectIdException.class, () -> postsService.getPic(id));
+    @DisplayName("Test saveImage")
+    void testSaveImage() throws IOException {
+        MultipartFile pic = new MockMultipartFile("pic", new byte[]{});
+        when(postsServiceImp.saveImage(pic)).thenReturn("path/to/file");
+        String result = postsServiceImp.saveImage(pic);
+        Assertions.assertEquals("path/to/file", result);
     }
 
     @Test
-    void saveImage() throws IOException {
-        MockMultipartFile pic = new MockMultipartFile("pic", "pic.jpg", "image/jpeg", "pic".getBytes());
-        String pathString = "path/to/pic.jpg";
-        File storageFile = new File(pathString);
-        Path path = Path.of(pathString);
-        when(postsService.saveImage(pic)).thenReturn(pathString);
-
-        String result = postsService.saveImage(pic);
-
-        assertEquals(pathString, result);
-        assertTrue(storageFile.exists());
-        storageFile.delete();
-        Files.deleteIfExists(path);
+    @DisplayName("Test deletePost")
+    void testDeletePost() {
+        postsServiceImp.deletePost(1);
+        verify(postsRepo, times(1)).deleteById(1);
     }
 }

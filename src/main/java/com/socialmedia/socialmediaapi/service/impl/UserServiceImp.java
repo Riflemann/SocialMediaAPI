@@ -139,7 +139,7 @@ public class UserServiceImp implements UserService {
         return true;
     }
 
-    private void validationIdUser(int...usersIds) throws UserNotFoundException {
+    void validationIdUser(int... usersIds) throws UserNotFoundException {
         for (int id : usersIds){
             if (!userIdList.contains(id)) {
                 throw new UserNotFoundException("Пользователь с ID " + id + " не найден");

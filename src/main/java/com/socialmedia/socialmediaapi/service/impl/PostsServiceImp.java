@@ -105,7 +105,6 @@ public class PostsServiceImp implements PostsService {
 
     @Override
     public void savePost(Posts posts) {
-
         postsRepo.save(posts);
     }
 
