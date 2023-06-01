@@ -6,7 +6,7 @@ create table users
 (
     id        serial primary key,
     full_name text not null,
-    login     text not null,
+    login     text not null unique,
     password  text not null,
     city      text,
     role      varchar(255)

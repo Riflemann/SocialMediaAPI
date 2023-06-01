@@ -10,7 +10,9 @@ import com.socialmedia.socialmediaapi.service.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * <p> Класс UserServiceImp является реализацией интерфейса {@link UserService} и предоставляет методы для работы с пользователями и их друзьями.

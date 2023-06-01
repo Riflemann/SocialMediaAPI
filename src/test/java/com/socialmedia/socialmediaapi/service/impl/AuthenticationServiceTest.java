@@ -1,7 +1,6 @@
 package com.socialmedia.socialmediaapi.service.impl;
 
 import com.socialmedia.socialmediaapi.config.JwtService;
-import com.socialmedia.socialmediaapi.config.SecurityConfiguration;
 import com.socialmedia.socialmediaapi.dto.AuthenticationRequest;
 import com.socialmedia.socialmediaapi.dto.RegisterRequest;
 import com.socialmedia.socialmediaapi.models.AuthenticationResponse;
@@ -10,6 +9,7 @@ import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.security.token.Token;
 import com.socialmedia.socialmediaapi.security.token.TokenRepository;
+import com.socialmedia.socialmediaapi.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -61,7 +60,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void registerShouldCreateUserAndReturnTokens() {
+    void registerShouldCreateUserAndReturnTokens() throws UserExistException {
         RegisterRequest request = new RegisterRequest("John Doe", "johndoe", "password", Role.USER);
         User user = User.builder()
                 .fullName("John Doe")
