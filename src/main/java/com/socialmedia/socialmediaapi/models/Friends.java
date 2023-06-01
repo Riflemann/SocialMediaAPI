@@ -11,18 +11,15 @@ public class Friends {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn(name = "user_from")
-    private User userFrom;
+    @Column(name = "user_from")
+    private int userFrom;
 
-    @ManyToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @JoinColumn(name = "user_to")
-    private User userTo;
+    @Column(name = "user_to")
+    private int userTo;
 
     private int status;
 
-    public Friends(int id, User userFrom, User userTo, int status) {
+    public Friends(int id, int userFrom, int userTo, int status) {
         this.id = id;
         this.userFrom = userFrom;
         this.userTo = userTo;
@@ -40,11 +37,11 @@ public class Friends {
         return this.id;
     }
 
-    public User getUserFrom() {
+    public int getUserFrom() {
         return this.userFrom;
     }
 
-    public User getUserTo() {
+    public int getUserTo() {
         return this.userTo;
     }
 
@@ -56,11 +53,11 @@ public class Friends {
         this.id = id;
     }
 
-    public void setUserFrom(User userFrom) {
+    public void setUserFrom(int userFrom) {
         this.userFrom = userFrom;
     }
 
-    public void setUserTo(User userTo) {
+    public void setUserTo(int userTo) {
         this.userTo = userTo;
     }
 
@@ -87,8 +84,8 @@ public class Friends {
 
     public static class FriendsBuilder {
         private int id;
-        private User userFrom;
-        private User userTo;
+        private int userFrom;
+        private int userTo;
         private int status;
 
         FriendsBuilder() {
@@ -99,12 +96,12 @@ public class Friends {
             return this;
         }
 
-        public FriendsBuilder userFrom(User userFrom) {
+        public FriendsBuilder userFrom(int userFrom) {
             this.userFrom = userFrom;
             return this;
         }
 
-        public FriendsBuilder userTo(User userTo) {
+        public FriendsBuilder userTo(int userTo) {
             this.userTo = userTo;
             return this;
         }

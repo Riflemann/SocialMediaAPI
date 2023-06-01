@@ -10,6 +10,7 @@ import com.socialmedia.socialmediaapi.dto.RegisterRequest;
 import com.socialmedia.socialmediaapi.security.token.Token;
 import com.socialmedia.socialmediaapi.security.token.TokenRepository;
 import com.socialmedia.socialmediaapi.security.token.TokenType;
+import com.socialmedia.socialmediaapi.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final UserRepository repository;
+
+  private final UserService userService;
   private final TokenRepository tokenRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
@@ -51,7 +54,7 @@ public class AuthenticationService {
         .password(passwordEncoder.encode(request.getPassword()))
         .role(request.getRole())
         .build();
-    var savedUser = repository.save(user);
+    var savedUser = userService.save(user);
     var jwtToken = jwtService.generateToken(user);
     var refreshToken = jwtService.generateRefreshToken(user);
     saveUserToken(savedUser, jwtToken);

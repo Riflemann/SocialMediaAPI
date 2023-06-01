@@ -16,7 +16,7 @@ public interface MessagesRepository extends JpaRepository<Messages, Integer> {
     List<Messages> getAllByUserToIsLike(int userTo);
 
     @Transactional
-    List<Messages> getAllByUserFromIsLike(int userTo);
+    List<Messages> getAllByUserFrom(int userTo);
 
     default void updateMessagesIsRead(List<Messages> messagesList, EntityManagerFactory entityManagerFactory) {
         EntityTransaction transaction = null;

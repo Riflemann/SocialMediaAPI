@@ -4,8 +4,9 @@ import com.socialmedia.socialmediaapi.models.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
@@ -13,5 +14,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> getUserByLogin(String login);
 
     @Transactional
-    Stream<User> getAllByIdIsLikeAndIdIsLike(int userOneId, int userTwoId);
+    List<User> getAllByIdIn(List<Integer> id);
 }

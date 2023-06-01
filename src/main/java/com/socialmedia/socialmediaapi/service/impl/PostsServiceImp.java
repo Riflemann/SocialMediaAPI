@@ -86,7 +86,7 @@ public class PostsServiceImp implements PostsService {
 
         List<Integer> friendsIdArrayList;
         friendsIdArrayList = friendsArrayList.stream()
-                                                    .map(friends -> friends.getUserTo().getId())
+                                                    .map(Friends::getUserTo)
                                                     .collect(Collectors.toCollection(ArrayList::new));
 
         List<Integer> finalFriendsIdArrayList = friendsIdArrayList;

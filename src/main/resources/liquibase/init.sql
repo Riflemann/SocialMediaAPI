@@ -45,8 +45,8 @@ create table posts
 create table friends
 (
     id        serial primary key,
-    user_from int references users (id),
-    user_to     int references users (id),
+    user_from int not null ,
+    user_to     int not null ,
     status  int not null
 );
 

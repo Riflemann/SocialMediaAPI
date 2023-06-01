@@ -56,7 +56,7 @@ public class MessagesServiceImpl implements MessagesService {
     public List<Messages> getAllMessagesFromUser(int userId) throws UserNotFoundException {
         Optional<User> user = userRepo.findById(userId);
         if (user.isPresent()) {
-            return messagesRepo.getAllByUserFromIsLike(userId);
+            return messagesRepo.getAllByUserFrom(userId);
         } else {
             throw new UserNotFoundException("Пользователь с ID " + userId + " не найден");
         }
