@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,23 +48,22 @@ public class PostsController {
                             responseCode = "403"
                     ),
                     @ApiResponse(
+                            description = "Internal Server Error, переданный ID некорректный",
+                            responseCode = "400"
+                    ),
+                    @ApiResponse(
                             description = "Internal Server Error, Пользователь под таким ID не найден, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "404"
                     )
             }
-
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping()
-    public ResponseEntity<Page<Posts>> getFriendsPosts(@RequestParam(required = false, value = "offset", defaultValue = "0") @Min(0) Integer offset,
+    public ResponseEntity<List<Posts>> getFriendsPosts(@RequestParam(required = false, value = "offset", defaultValue = "0") @Min(0) Integer offset,
                                                        @RequestParam(required = false, value = "limit", defaultValue = "20") Integer limit,
-                                                       @PathVariable String id){
-        try {
-            return ResponseEntity.ok(postsService.getAllPostsFromFriends(id, offset, limit));
-        } catch (IncorrectIdException | UserNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+                                                       @PathVariable String id) throws UserNotFoundException, IncorrectIdException {
+        return ResponseEntity.ok(postsService.getAllPostsFromFriends(id, offset, limit));
+
     }
 
     @Operation(
@@ -82,20 +80,14 @@ public class PostsController {
                     ),
                     @ApiResponse(
                             description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "400"
                     )
             }
-
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping(value = "my_posts")
-    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable String id){
-        try {
-            return ResponseEntity.ok(postsService.getAllByUserId(id));
-        } catch (IncorrectIdException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<List<Posts>> getUserPosts(@PathVariable String id) throws IncorrectIdException {
+        return ResponseEntity.ok(postsService.getAllByUserId(id));
     }
 
     @Operation(
@@ -112,7 +104,11 @@ public class PostsController {
                     ),
                     @ApiResponse(
                             description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "400"
+                    ),
+                    @ApiResponse(
+                            description = "Internal Server Error, Пользователь под таким ID не найден, переданный ID некорректный",
+                            responseCode = "404"
                     )
             }
 
@@ -122,21 +118,16 @@ public class PostsController {
     public ResponseEntity<Posts> addPost(@RequestParam String header,
                                          @RequestParam String text,
                                          @RequestParam("imageFile") MultipartFile pic,
-                                         @PathVariable String id) throws IOException {
+                                         @PathVariable String id) throws IOException, IncorrectIdException, UserNotFoundException {
         String path = postsService.saveImage(pic);
         Posts post;
-        try {
-            post = Posts.builder()
-                    .header(header)
-                    .text(text)
-                    .pic(path)
-                    .userOwner(userService.getUserById(StringUtil.ValidationId(id)))
-                    .creatingTime(LocalDateTime.now())
-                    .build();
-        } catch (UserNotFoundException | IncorrectIdException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+        post = Posts.builder()
+                .header(header)
+                .text(text)
+                .pic(path)
+                .userOwner(userService.getUserById(StringUtil.ValidationId(id)))
+                .creatingTime(LocalDateTime.now())
+                .build();
         postsService.savePost(post);
         return ResponseEntity.ok(post);
     }
@@ -155,7 +146,7 @@ public class PostsController {
                     ),
                     @ApiResponse(
                             description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "400"
                     )
             }
 
@@ -165,15 +156,10 @@ public class PostsController {
     public ResponseEntity<String> editPost(@RequestParam(required = false) String header,
                                            @RequestParam(required = false) String text,
                                            @RequestParam(name = "imageFile", required = false) MultipartFile pic,
-                                           @PathVariable String post_id) throws AttributeNotFoundException, IOException {
+                                           @PathVariable String post_id) throws AttributeNotFoundException, IOException, IncorrectIdException {
         String pathToImage = "";
         if (pic.isEmpty()) {
-            try {
-                pathToImage = postsService.getPic(post_id);
-            } catch (IncorrectIdException e) {
-                e.printStackTrace();
-                ResponseEntity.badRequest().body(e);
-            }
+            pathToImage = postsService.getPic(post_id);
         } else {
             pathToImage = postsService.saveImage(pic);
         }
@@ -195,21 +181,14 @@ public class PostsController {
                     ),
                     @ApiResponse(
                             description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "400"
                     )
             }
-
     )
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping(value = "{post_id}")
-    public ResponseEntity<String> deletePost(@PathVariable String post_id) {
-        try {
+    public ResponseEntity<String> deletePost(@PathVariable String post_id) throws IncorrectIdException {
             postsService.deletePost(StringUtil.ValidationId(post_id));
             return ResponseEntity.ok("Пост удален");
-        } catch (IncorrectIdException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
     }
-
 }

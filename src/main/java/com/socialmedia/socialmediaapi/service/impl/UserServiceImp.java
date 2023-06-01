@@ -7,6 +7,7 @@ import com.socialmedia.socialmediaapi.models.User;
 import com.socialmedia.socialmediaapi.repository.FriendsRepository;
 import com.socialmedia.socialmediaapi.repository.UserRepository;
 import com.socialmedia.socialmediaapi.service.UserService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -47,6 +48,11 @@ public class UserServiceImp implements UserService {
     public UserServiceImp(UserRepository userRepo, FriendsRepository friendsRepo) {
         this.userRepo = userRepo;
         this.friendsRepo = friendsRepo;
+    }
+
+    @PostConstruct
+    private void init() {
+        userIdList.addAll(userRepo.getAllUsersId());
     }
 
     @Override
@@ -98,12 +104,14 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public List<Friends> getFriendsListById(int userId) {
+    public List<Friends> getFriendsListById(int userId) throws UserNotFoundException {
+        validationIdUser(userId);
         return friendsRepo.getAllFriends(userId);
     }
 
     @Override
-    public List<Friends> getSubscribesListById(int userId) {
+    public List<Friends> getSubscribesListById(int userId) throws UserNotFoundException {
+        validationIdUser(userId);
         return friendsRepo.getAllSubscribes(userId);
     }
 
@@ -122,7 +130,8 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public boolean deleteFromFriends(int userIdFrom, int userIdTo){
+    public boolean deleteFromFriends(int userIdFrom, int userIdTo) throws UserNotFoundException {
+        validationIdUser(userIdFrom, userIdTo);
         friendsRepo.deleteFromFriends(userIdFrom, userIdTo);
         friendsRepo.changeStatusFromFriendToSubscribe(userIdTo, userIdFrom);
         return true;

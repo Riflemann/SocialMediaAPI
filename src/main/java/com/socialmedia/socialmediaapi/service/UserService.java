@@ -20,11 +20,11 @@ public interface UserService {
 
     boolean sendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException;
 
-    List<Friends> getFriendsListById(int userId);
+    List<Friends> getFriendsListById(int userId) throws UserNotFoundException;
 
-    List<Friends> getSubscribesListById(int userId);
+    List<Friends> getSubscribesListById(int userId) throws UserNotFoundException;
 
     boolean acceptFriendRequest(int userIdFrom, int userIdTo) throws UserNotFoundException;
 
-    boolean deleteFromFriends(int userIdFrom, int userIdTo);
+    boolean deleteFromFriends(int userIdFrom, int userIdTo) throws UserNotFoundException;
 }

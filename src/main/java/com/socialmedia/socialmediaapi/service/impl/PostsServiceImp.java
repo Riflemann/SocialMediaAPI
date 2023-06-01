@@ -8,6 +8,8 @@ import com.socialmedia.socialmediaapi.repository.FriendsRepository;
 import com.socialmedia.socialmediaapi.repository.PostsRepository;
 import com.socialmedia.socialmediaapi.service.PostsService;
 import com.socialmedia.socialmediaapi.utils.StringUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,7 +45,7 @@ import java.util.stream.Collectors;
 
  <p>- public List<{@link Posts}> getAllByUser(Optional<{@link User}> userOptional) - метод, который возвращает список всех постов пользователя, если пользователь передан в параметре. Если параметр не передан, то возвращается пустой List.
  <p>- public List<{@link Posts}> getAllByUserId(String id) throws IncorrectIdException - метод, который возвращает список всех постов пользователя по его id. Если id не корректный, то выбрасывается исключение {@link IncorrectIdException}.
- <p>- public Page<{@link Posts}> getAllPostsFromFriends(String id, int offset, int limit) throws IncorrectIdException - метод, который возвращает страницу со всеми постами друзей пользователя. В параметрах передается id пользователя, номер страницы и лимит записей на странице. Если id не корректный, то выбрасывается исключение {@link IncorrectIdException}.
+ <p>- public List<{@link Posts}> getAllPostsFromFriends(String id, int pageNumber, int pageSize) throws IncorrectIdException - метод, который возвращает страницу со всеми постами друзей пользователя. В параметрах передается id пользователя, номер страницы и лимит записей на странице. Если id не корректный, то выбрасывается исключение {@link IncorrectIdException}.
  <p>- public void savePost(Posts posts) - метод, который сохраняет пост в базу данных.
  <p>- public void editPost(String header, String text, String pic, String id) - метод, который изменяет заголовок, текст и изображение поста по его id.
  <p>- public String getPic(String id) throws AttributeNotFoundException, IncorrectIdException - метод, который возвращает путь к изображению поста по его id. Если id не корректный или изображение не найдено, то выбрасывается исключение AttributeNotFoundException или {@link IncorrectIdException} соответственно.
@@ -60,10 +62,13 @@ public class PostsServiceImp implements PostsService {
 
     private final FriendsRepository friendsRepo;
 
+    private final EntityManagerFactory entityManagerFactory;
 
-    public PostsServiceImp(PostsRepository postsRepo, FriendsRepository friendsRepo) {
+
+    public PostsServiceImp(PostsRepository postsRepo, FriendsRepository friendsRepo, EntityManagerFactory entityManagerFactory) {
         this.postsRepo = postsRepo;
         this.friendsRepo = friendsRepo;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
@@ -76,7 +81,7 @@ public class PostsServiceImp implements PostsService {
     }
 
     @Override
-    public Page<Posts> getAllPostsFromFriends(String id, int offset, int limit) throws IncorrectIdException {
+    public List<Posts> getAllPostsFromFriends(String id, int pageNumber, int pageSize) throws IncorrectIdException {
 
         int intId = StringUtil.ValidationId(id);
 
@@ -88,18 +93,14 @@ public class PostsServiceImp implements PostsService {
         friendsIdArrayList = friendsArrayList.stream()
                                                     .map(Friends::getUserTo)
                                                     .collect(Collectors.toCollection(ArrayList::new));
+        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
 
-        List<Integer> finalFriendsIdArrayList = friendsIdArrayList;
-
-        Page<Posts> postsPage = postsRepo.findAll(
-                                                PageRequest.of(
-                                                            offset,
-                                                            limit,
-                                                            Sort.by("creatingTime")));
-        postsPage.stream()
-                        .filter(posts -> finalFriendsIdArrayList.contains(posts.getUserOwner().getId()))
-                        .close();
-        return postsPage;
+            return entityManager.createQuery("SELECT posts FROM Posts posts WHERE posts.userOwner.id IN :friendsIds order by posts.creatingTime desc")
+                    .setParameter("friendsIds", friendsIdArrayList)
+                    .setFirstResult((pageNumber - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        }
     }
 
     @Override

@@ -38,21 +38,16 @@ public class MessagesController {
                             responseCode = "403"
                     ),
                     @ApiResponse(
-                            description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            description = "Internal Server Error, Пользователь под таким ID не найден",
+                            responseCode = "404"
                     )
             }
 
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping(value = "outbox")
-    public ResponseEntity<List<Messages>> getMessagesFromUser(@PathVariable int user_id) {
-        try {
-            return ResponseEntity.ok(messagesService.getAllMessagesFromUser(user_id));
-        } catch (UserNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<List<Messages>> getMessagesFromUser(@PathVariable int user_id) throws UserNotFoundException {
+        return ResponseEntity.ok(messagesService.getAllMessagesFromUser(user_id));
     }
 
     @Operation(
@@ -68,21 +63,16 @@ public class MessagesController {
                             responseCode = "403"
                     ),
                     @ApiResponse(
-                            description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            description = "Internal Server Error, Пользователь под таким ID не найден",
+                            responseCode = "404"
                     )
             }
 
     )
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping(value = "inbox")
-    public ResponseEntity<List<Messages>> getMessagesForUser(@PathVariable int user_id) {
-        try {
-            return ResponseEntity.ok(messagesService.getAllMessagesForUser(user_id));
-        } catch (UserNotFoundException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<List<Messages>> getMessagesForUser(@PathVariable int user_id) throws UserNotFoundException {
+        return ResponseEntity.ok(messagesService.getAllMessagesForUser(user_id));
     }
 
     @Operation(
@@ -99,7 +89,7 @@ public class MessagesController {
                     ),
                     @ApiResponse(
                             description = "Internal Server Error, переданный ID некорректный",
-                            responseCode = "500"
+                            responseCode = "400"
                     )
             }
 
@@ -108,16 +98,12 @@ public class MessagesController {
     @PostMapping(value = "send{id_user_to}")
     public ResponseEntity<String> sendMessage(@PathVariable String user_id,
                                               @PathVariable String id_user_to,
-                                              @RequestParam String textMessage) {
-        try {
-            messagesService.sendMessage(StringUtil.ValidationId(user_id),
-                                        StringUtil.ValidationId(id_user_to),
-                                        textMessage);
-            return ResponseEntity.ok("Сообщение отправлено");
-        } catch (IncorrectIdException e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+                                              @RequestParam String textMessage) throws IncorrectIdException {
+        messagesService.sendMessage(StringUtil.ValidationId(user_id),
+                StringUtil.ValidationId(id_user_to),
+                textMessage);
+        return ResponseEntity.ok("Сообщение отправлено");
+
     }
 
 

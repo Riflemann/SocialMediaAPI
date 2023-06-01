@@ -3,6 +3,7 @@ package com.socialmedia.socialmediaapi.repository;
 import com.socialmedia.socialmediaapi.models.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,5 +15,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> getUserByLogin(String login);
 
     @Transactional
-    List<User> getAllByIdIn(List<Integer> id);
+    @Query("SELECT id from User")
+    List<Integer> getAllUsersId();
 }
